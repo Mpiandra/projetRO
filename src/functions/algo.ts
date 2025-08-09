@@ -186,7 +186,7 @@ function getRowValue(dataMatrix : (number | undefined | string)[][]) : (number |
     return row;
 }
 
-export function fullFlow (edges : Edge[], nbNodes : number) : {dataMatrix : (number | undefined | string)[][], initialMatrix : number[][]}  {
+export function fullFlow (edges : Edge[], nbNodes : number) : {dataMatrix : (number | undefined | string)[][], initialMatrix : number[][], inverseRows : (number | string)[][]}  {
     let dataMatrix = recupData(edges, nbNodes);
    
     let initialMatrix : number[][] = initializeMatrix(nbNodes);
@@ -226,10 +226,23 @@ export function fullFlow (edges : Edge[], nbNodes : number) : {dataMatrix : (num
 
     }
 
+    const inverseRows : (number | string)[][] = Array.from({length : rows[0].length}, () => Array(rows.length)); 
+
+    for (let i = 0; i < inverseRows.length; i++){
+        for(let j = 0; j < rows.length; j++){
+            inverseRows[i][j] = rows[j][i];
+        }
+    }
+
+    
+    
+
     console.log("rows : ", rows);
+    console.log("inverseRows : ", inverseRows);
+    
     console.log("dataMatrix : ", dataMatrix);
     
-    return {dataMatrix, initialMatrix};
+    return {dataMatrix, initialMatrix, inverseRows};
     
     
 }
@@ -353,14 +366,29 @@ function updateMatrix (matrix : number[][], allPaths : Element[][], dataMatrix :
     
 }
 
-export function getMaxFlow(matrix : number[][], dataMatrix : (number | undefined | string)[][]): void {
+export function getMaxFlow(matrix : number[][], dataMatrix : (number | undefined | string)[][]): {updatedDataMatrix : (number | undefined | string)[][], updatedMatrix : (number)[][]} {
     const allPaths : Element[][] = [];
+    const updatedMatrix : number[][] = Array.from({length : matrix.length}, () => Array(matrix.length));
+    const updatedDataMatrix : (number | undefined | string)[][] = Array.from({length : dataMatrix.length}, () => Array(dataMatrix.length));
+
+    for(let i = 0; i < matrix.length; i++){
+        for(let j = 0; j < matrix.length; j++){
+            updatedMatrix[i][j] = matrix[i][j];
+        }
+    }
+
+    for(let i = 0; i < dataMatrix.length; i++){
+        for(let j = 0; j < dataMatrix.length; j++){
+            updatedDataMatrix[i][j] = dataMatrix[i][j];
+        }
+    }
+
     do{
-        console.log("ato ahe");
-        
-        const allPaths : Element[][] = getWayToSink(dataMatrix);
+        const allPaths : Element[][] = getWayToSink(updatedDataMatrix);
         if(allPaths.length > 0){
-            updateMatrix(matrix, allPaths, dataMatrix);
+            updateMatrix(updatedMatrix, allPaths, updatedDataMatrix);
         }
     }while(allPaths.length > 0)
+    
+    return{updatedDataMatrix, updatedMatrix};
 }

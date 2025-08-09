@@ -7,7 +7,8 @@ const SourceNode = ({ data }) => {
     <Card
       elevation={3}
       sx={{
-        backgroundColor: "#E2E9C0",
+        background: "linear-gradient(90deg, hsla(120, 6%, 90%, 1) 0%, hsla(228, 75%, 16%, 1) 100%)",
+        
         borderRadius: "50%",
         width: 75,
         height: 75,
@@ -29,7 +30,7 @@ const SourceNode = ({ data }) => {
           height: "100%",
         }}
       >
-        <Typography variant="h6">{data.label}</Typography>
+        <Typography variant="h6" color="white">{data.label}</Typography>
       </CardContent>
       <Handle
         type="source"
