@@ -202,7 +202,7 @@ export default function App() {
               />
             </Paper>
           </Grid>
-          {dataMatrix.length > 0 && (
+          {/* {dataMatrix.length > 0 && (
             <Grid sx={{height: '90vh'}}>
               <Paper style={{ backgroundColor: 'aliceblue', height: '87vh', width: '100%' }}>
                 <Typography variant='h4'>Flot Complet</Typography>
@@ -271,7 +271,7 @@ export default function App() {
             </Paper>
           </Grid>
         
-      )}
+      )} */}
   
       </Grid>
 
