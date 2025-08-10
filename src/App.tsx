@@ -20,22 +20,138 @@ import { fullFlow, getMaxFlow } from './functions/algo';
 
 export default function App() {
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
-    {
-      type: 'source',
-      id: '0',
-      position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: 'α' }
-    },
-    {
-      type: 'target',
-      id: 'ω',
-      position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: `ω` },
-    }
-  ]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(
+  //   [
+  //   {
+  //     type: 'source',
+  //     id: '0',
+  //     position: { x: Math.random() * 400, y: Math.random() * 400 },
+  //     data: { label: 'α' }
+  //   },
+  //   {
+  //     type: 'target',
+  //     id: 'ω',
+  //     position: { x: Math.random() * 400, y: Math.random() * 400 },
+  //     data: { label: `ω` },
+  //   }
+    
+  // ]
+  [
+  {
+    type: 'source',
+    id: '0',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'α' }
+  },
+  {
+    type: 'target',
+    id: '13',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'ω' }
+  },
+  {
+    type: 'custom',
+    id: '1',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'A' }
+  },
+  {
+    type: 'custom',
+    id: '2',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'B' }
+  },
+  {
+    type: 'custom',
+    id: '3',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'C' }
+  },
+  {
+    type: 'custom',
+    id: '4',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'D' }
+  },
+  {
+    type: 'custom',
+    id: '5',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'E' }
+  },
+  {
+    type: 'custom',
+    id: '6',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'F' }
+  },
+  {
+    type: 'custom',
+    id: '7',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'G' }
+  },
+  {
+    type: 'custom',
+    id: '8',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'H' }
+  },
+  {
+    type: 'custom',
+    id: '9',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'I' }
+  },
+  {
+    type: 'custom',
+    id: '10',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'J' }
+  },
+  {
+    type: 'custom',
+    id: '11',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'K' }
+  },
+  {
+    type: 'custom',
+    id: '12',
+    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    data: { label: 'L' }
+  }
+]
+  );
 
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(
+    [
+  { source: '0',  target: '1',  id: 'xy-edge__0-1',  type: 'custom', data: { label: 15 } },
+  { source: '0',  target: '2',  id: 'xy-edge__0-2',  type: 'custom', data: { label: 10 } },
+  { source: '0',  target: '3',  id: 'xy-edge__0-3',  type: 'custom', data: { label: 15 } },
+  { source: '0',  target: '4',  id: 'xy-edge__0-4',  type: 'custom', data: { label: 15 } },
+  { source: '2',  target: '1',  id: 'xy-edge__2-1',  type: 'custom', data: { label: 5 } },
+  { source: '1',  target: '5',  id: 'xy-edge__1-5',  type: 'custom', data: { label: 7 } },
+  { source: '2',  target: '6',  id: 'xy-edge__2-6',  type: 'custom', data: { label: 5 } },
+  { source: '3',  target: '6',  id: 'xy-edge__3-6',  type: 'custom', data: { label: 10 } },
+  { source: '3',  target: '7',  id: 'xy-edge__3-7',  type: 'custom', data: { label: 7 } },
+  { source: '4',  target: '7',  id: 'xy-edge__4-7',  type: 'custom', data: { label: 10 } },
+  { source: '5',  target: '6',  id: 'xy-edge__5-6',  type: 'custom', data: { label: 5 } },
+  { source: '6',  target: '7',  id: 'xy-edge__6-7',  type: 'custom', data: { label: 5 } },
+  { source: '5',  target: '8',  id: 'xy-edge__5-8',  type: 'custom', data: { label: 4 } },
+  { source: '5',  target: '9',  id: 'xy-edge__5-9',  type: 'custom', data: { label: 15 } },
+  { source: '6',  target: '9',  id: 'xy-edge__6-9',  type: 'custom', data: { label: 15 } },
+  { source: '7',  target: '9',  id: 'xy-edge__7-9',  type: 'custom', data: { label: 15 } },
+  { source: '9',  target: '8',  id: 'xy-edge__9-8',  type: 'custom', data: { label: 7 } },
+  { source: '8',  target: '10', id: 'xy-edge__8-10', type: 'custom', data: { label: 7 } },
+  { source: '11', target: '10', id: 'xy-edge__11-10', type: 'custom', data: { label: 10 } },
+  { source: '9',  target: '11', id: 'xy-edge__9-11', type: 'custom', data: { label: 30 } },
+  { source: '9',  target: '12', id: 'xy-edge__9-12', type: 'custom', data: { label: 4 } },
+  { source: '11', target: '13', id: 'xy-edge__11-13', type: 'custom', data: { label: 20 } },
+  { source: '10', target: '13', id: 'xy-edge__10-13', type: 'custom', data: { label: 15 } },
+  { source: '12', target: '13', id: 'xy-edge__12-13', type: 'custom', data: { label: 15 } }
+]
+  );
   const [fullFlowEdges, setFullFlowEdges] = useState<Edge[]>([]);
   const [maxFlowEdges, setMaxFlowEdges] = useState<Edge[]>([]);
 
@@ -51,8 +167,10 @@ export default function App() {
 
   useEffect(() => {
     console.log(edges);
+    console.log(nodes);
+    
 
-  }, [edges])
+  }, [edges, nodes])
 
   const addNode = useCallback(() => {
     setNodes((prevNodes) => {
@@ -88,7 +206,7 @@ export default function App() {
     setDataMatrix(result.dataMatrix);
     setInitialMatrix(result.initialMatrix)
     setRows(result.inverseRows);
-    const maxFlowResult = getMaxFlow(result.initialMatrix, result.dataMatrix);
+    const maxFlowResult = getMaxFlow(result.initialMatrix, result.dataMatrix, edges, nodes.length);
     setMaxFlowDataMatrix(maxFlowResult.updatedDataMatrix);
     setMaxFlowMatrix(maxFlowResult.updatedMatrix);
 

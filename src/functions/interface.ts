@@ -4,9 +4,9 @@ export interface Way {
     col : number;
 }
 
-export interface Element {
-    elementValue : number | undefined | string;
-    elementRow : number;
-    elementCol : number;
-    direction ?: string;
-}
+export type Element = {
+    elementValue: string;
+    elementRow: number;
+    elementCol: number;
+    direction: 'forward' | 'backward';
+};

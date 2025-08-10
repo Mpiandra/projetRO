@@ -25,8 +25,6 @@ function recupData (edges : Edge[], nbNodes: number) : (number | undefined | str
         dataMatrix[parseInt(ed.source)][parseInt(ed.target)] = parseInt(weight);
         aAfficher[parseInt(ed.source)][parseInt(ed.target)] = parseInt(weight);
     }
-
-    console.log(aAfficher);
     
     return dataMatrix;
 }
@@ -165,9 +163,7 @@ function plusValue(initialMatrix : number[][], elementaryWay : Way[], minWay : W
 
     for(let oneWay of elementaryWay){
         if(minWay.value !== undefined){
-            console.log("ancienne valeur : ", initialMatrixCopy[oneWay.row][oneWay.col]);
             initialMatrixCopy[oneWay.row][oneWay.col] += minWay.value;
-            console.log("nouvelle valeur : ", initialMatrix[oneWay.row][oneWay.col] += minWay.value);
         }
     }
     return initialMatrixCopy;
@@ -230,21 +226,16 @@ export function fullFlow (edges : Edge[], nbNodes : number) : {dataMatrix : (num
 
     while(true){
         const minWay : Way = findMin(dataMatrix);
-        console.log("MinWay : ", minWay);
         
         const elementaryWay : Way[] = findWay(dataMatrix, minWay);
-        console.log("elementaryWay : ", elementaryWay);
         
 
             const newDataMatrix : (number | undefined | string)[][] = minusMin(dataMatrix, minWay, elementaryWay);
-            console.log("newDataMatrix : ", newDataMatrix);
             dataMatrix = newDataMatrix;
             
         
             const newInitialMatrix = plusValue(initialMatrix, elementaryWay, minWay);
             initialMatrix = newInitialMatrix;
-            console.log("newInitialMatrix : ", newInitialMatrix);
-            
             const row : (number | string)[] = getRowValue(newDataMatrix);
             rows.push(row);
 
@@ -267,17 +258,10 @@ export function fullFlow (edges : Edge[], nbNodes : number) : {dataMatrix : (num
         }
     }
 
-
-    console.log("rows : ", rows);
-    console.log("inverseRows : ", inverseRows);
-    
-    console.log("dataMatrix : ", dataMatrix);
-    
     return {dataMatrix, initialMatrix, inverseRows};
     
     
 }
-
 
 function getWayToSink(dataMatrix: (number | undefined | string)[][]): Element[][] {
     const allPaths: Element[][] = [];
@@ -291,23 +275,8 @@ function getWayToSink(dataMatrix: (number | undefined | string)[][]): Element[][
                 elementCol: col,
                 direction: 'forward'
             }];
-            console.log("Path : ", path);
-            
-            const visited = new Set<string>(["0->" + col]);
+            const visited = new Set<string>([`0->${col}`]);
             exploreAllPaths(path, dataMatrix, visited, sink, allPaths);
-        }
-    }
-
-
-    // Affichage
-    if (allPaths.length === 0) {
-        console.log("Aucun chemin augmentant vers le puits.");
-    } else {
-        console.log("allPaths : ", allPaths);
-        
-        console.log("Chemins augmentants trouvés :");
-        for (const path of allPaths) {
-            console.log(path.map(e => `${e.direction === 'forward' ? '' : '<-'}${e.elementRow}->${e.elementCol}`).join(" → "));
         }
     }
 
@@ -326,10 +295,9 @@ function exploreAllPaths(
 
     if (current === sink) {
         allPaths.push(currentPath);
-        return; 
+        return;
     }
 
-    
     for (let col = 0; col < dataMatrix.length; col++) {
         if (dataMatrix[current][col] === "Bloqué" && !visited.has(`${current}->${col}`)) {
             const next: Element = {
@@ -356,70 +324,85 @@ function exploreAllPaths(
             newVisited.add(`${row}->${current}`);
             exploreAllPaths([...currentPath, back], dataMatrix, newVisited, sink, allPaths);
         }
-    }dataMatrix
+    }
 }
 
-function updateMatrix (matrix : number[][], allPaths : Element[][], dataMatrix : (number | undefined | string)[][]) : void {
-    let minValueSature : number = 0;
-    const matrixAfter = matrix;
-    const dataMatrixAfter = dataMatrix;
+function updateMatrix(
+    matrix: number[][],
+    allPaths: Element[][],
+    dataMatrix: (number | undefined | string)[][],
+    edges : Edge[],
+    nbNodes : number
+): void {
+    let minValueSature = Infinity;
 
-    for(let i = 0; i < allPaths.length; i++){
-        for (let j = 0; j < allPaths[i].length; j++){
+    for (const path of allPaths) {
+        for (const e of path) {
+            if (e.elementValue === 'Saturé') {
+                const value = matrix[e.elementCol][e.elementRow];
+                if (value < minValueSature) {
+                    minValueSature = value;
+                }
+            }
+        }
+    }
+
+    console.log("minValueSature : ", minValueSature);
+    
+
+    if (minValueSature === Infinity) minValueSature = 0;
+
+    const initialDataMatrix = recupData(edges, nbNodes);
+
+        for (const e of allPaths[0]) {
+
+            console.log("currentPath : ", e);
             
-            if(allPaths[i][j].elementValue === 'Saturé'){
-                dataMatrixAfter[allPaths[i][j].elementCol][allPaths[i][j].elementRow] = 'Bloqué';
-                minValueSature = matrixAfter[allPaths[i][j].elementCol][allPaths[i][j].elementRow];
+            if (e.direction === 'forward') {
+                const newCapacity = matrix[e.elementRow][e.elementCol] + minValueSature;
+                matrix[e.elementRow][e.elementCol] += minValueSature;
+                console.log("oldCapacity : ", matrix[e.elementRow][e.elementCol]);
                 
-                if(minValueSature > matrixAfter[allPaths[i][j].elementCol][allPaths[i][j].elementRow]){
-                    minValueSature = matrixAfter[allPaths[i][j].elementCol][allPaths[i][j].elementRow];
-
+                console.log("newCapacity : ", newCapacity);
+                
+                if(initialDataMatrix[e.elementRow][e.elementCol] === newCapacity){
+                    dataMatrix[e.elementRow][e.elementCol] = "Saturé";
                 }
                 
-            }
-        }
-    }
-    console.log("minValueSature : ", minValueSature);
-
-    for(let i = 0; i < allPaths.length; i++){
-        for( let j = 0; j < allPaths[i].length; j++){
-            if(allPaths[i][j].elementValue === 'Bloqué'){
-                matrixAfter[allPaths[i][j].elementRow][allPaths[i][j].elementCol] += minValueSature;
             } else {
-                matrixAfter[allPaths[i][j].elementCol][allPaths[i][j].elementRow] -= minValueSature;
+                const newCapacity = matrix[e.elementCol][e.elementRow] - minValueSature;
+                matrix[e.elementCol][e.elementRow] -= minValueSature
+                console.log("oldCapacity : ", matrix[e.elementCol][e.elementRow]);
+                
+                console.log("newCapacity  : ", newCapacity);
+                
+                dataMatrix[e.elementCol][e.elementRow] = "Bloqué";
             }
         }
-    }
-
-    console.log("matrix after : ", matrix);
-    console.log("dataMatrix after : ", dataMatrix);
-    
-    
 }
 
-export function getMaxFlow(matrix : number[][], dataMatrix : (number | undefined | string)[][]): {updatedDataMatrix : (number | undefined | string)[][], updatedMatrix : (number)[][]} {
-    const allPaths : Element[][] = [];
-    const updatedMatrix : number[][] = Array.from({length : matrix.length}, () => Array(matrix.length));
-    const updatedDataMatrix : (number | undefined | string)[][] = Array.from({length : dataMatrix.length}, () => Array(dataMatrix.length));
+export function getMaxFlow(
+    matrix: number[][],
+    dataMatrix: (number | undefined | string)[][], edges : Edge[], nbNodes : number
+): { updatedDataMatrix: (number | undefined | string)[][], updatedMatrix: number[][] } {
 
-    for(let i = 0; i < matrix.length; i++){
-        for(let j = 0; j < matrix.length; j++){
-            updatedMatrix[i][j] = matrix[i][j];
-        }
-    }
-
-    for(let i = 0; i < dataMatrix.length; i++){
-        for(let j = 0; j < dataMatrix.length; j++){
-            updatedDataMatrix[i][j] = dataMatrix[i][j];
-        }
-    }
-
-    do{
-        const allPaths : Element[][] = getWayToSink(updatedDataMatrix);
-        if(allPaths.length > 0){
-            updateMatrix(updatedMatrix, allPaths, updatedDataMatrix);
-        }
-    }while(allPaths.length > 0)
+    console.log("matrix : ", matrix);
+    console.log("dataMatrix : ", dataMatrix);
     
-    return{updatedDataMatrix, updatedMatrix};
+    
+    const updatedMatrix = matrix.map(row => [...row]);
+    const updatedDataMatrix = dataMatrix.map(row => [...row]);
+
+    while (true) {
+        const paths = getWayToSink(updatedDataMatrix);
+        
+        if (paths.length === 0) break;
+        updateMatrix(updatedMatrix, paths, updatedDataMatrix, edges, nbNodes);
+        getMaxFlow(updatedMatrix, updatedDataMatrix, edges, nbNodes);
+    }
+
+    return { updatedDataMatrix, updatedMatrix };
 }
+
+
+
