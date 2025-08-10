@@ -384,7 +384,7 @@ function updateMatrix(
 export function getMaxFlow(
     matrix: number[][],
     dataMatrix: (number | undefined | string)[][], edges : Edge[], nbNodes : number
-): { updatedDataMatrix: (number | undefined | string)[][], updatedMatrix: number[][] } {
+): { updatedDataMatrix: (number | undefined | string)[][], updatedMatrix: number[][], allPaths : Element[][] } {
 
     console.log("matrix : ", matrix);
     console.log("dataMatrix : ", dataMatrix);
@@ -393,15 +393,19 @@ export function getMaxFlow(
     const updatedMatrix = matrix.map(row => [...row]);
     const updatedDataMatrix = dataMatrix.map(row => [...row]);
 
+    const allPaths : Element[][] = [];
+
     while (true) {
         const paths = getWayToSink(updatedDataMatrix);
-        
         if (paths.length === 0) break;
+        allPaths.push(paths[0])
         updateMatrix(updatedMatrix, paths, updatedDataMatrix, edges, nbNodes);
         getMaxFlow(updatedMatrix, updatedDataMatrix, edges, nbNodes);
     }
 
-    return { updatedDataMatrix, updatedMatrix };
+    console.log("AllPaths : ", allPaths);
+    
+    return { updatedDataMatrix, updatedMatrix, allPaths };
 }
 
 

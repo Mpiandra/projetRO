@@ -10,3 +10,4 @@ export type Element = {
     elementCol: number;
     direction: 'forward' | 'backward';
 };
+

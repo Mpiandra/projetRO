@@ -1,18 +1,19 @@
-import { BaseEdge, EdgeProps, getBezierPath } from '@xyflow/react';
+import { BaseEdge, EdgeProps, getStraightPath } from '@xyflow/react';
 import React, { useState } from 'react';
 
 interface CustomEdgeProps extends EdgeProps {
   onLabelChange?: (id: string, newLabel: number) => void;
 }
 
-const CustomEdge: React.FC<CustomEdgeProps> = ({ 
-  id, sourceX, sourceY, targetX, targetY, data, selected, onLabelChange 
+const CustomEdge: React.FC<CustomEdgeProps> = ({
+  id, sourceX, sourceY, targetX, targetY, data, selected, onLabelChange
 }) => {
-  
-  const [label, setLabel] = useState<number>(Number(data?.label) || 0 );
-  const [isEditing, setIsEditing] = useState(false); 
-  const edgePath = getBezierPath({ sourceX, sourceY, targetX, targetY })[0];
 
+  const [label, setLabel] = useState<number>(Number(data?.label) || 0);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Lignes droites
+  const edgePath = getStraightPath({ sourceX, sourceY, targetX, targetY })[0];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLabel(Number(e.target.value));
@@ -20,28 +21,44 @@ const CustomEdge: React.FC<CustomEdgeProps> = ({
 
   const handleBlur = () => {
     setIsEditing(false);
-    if (onLabelChange) {
-      onLabelChange(id, label);
-    }
+    onLabelChange?.(id, label);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setIsEditing(false);
-      if (onLabelChange) {
-        onLabelChange(id, label);
-      }
+      onLabelChange?.(id, label);
     }
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setIsEditing(true);
   };
 
   return (
     <>
-      <BaseEdge path={edgePath} />
+      {/* Définition du marqueur de flèche */}
+      <defs>
+        <marker
+          id="arrowhead"
+          markerWidth="10"
+          markerHeight="7"
+          refX="10"
+          refY="3.5"
+          orient="auto"
+          fill="black"
+        >
+          <polygon points="0 0, 10 3.5, 0 7" />
+        </marker>
+      </defs>
+
+      <BaseEdge
+        path={edgePath}
+        markerEnd="url(#arrowhead)" // flèche à la fin
+        style={{ stroke: 'black', strokeWidth: 2 }}
+      />
+
       <foreignObject
         x={(sourceX + targetX) / 2 - 50}
         y={(sourceY + targetY) / 2 - 15}

@@ -1,6 +1,7 @@
 import { Card, CardContent, Typography } from "@mui/material";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Node, Position } from "@xyflow/react";
 import React from "react";
+import { Element } from "../functions/interface";
 
 const CustomNode = ({ data }) => {
   return (
@@ -75,5 +76,7 @@ const CustomNode = ({ data }) => {
 };
 
 export default CustomNode;
+
+
 
 
