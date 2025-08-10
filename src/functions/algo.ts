@@ -56,71 +56,104 @@ function findMin(dataMatrix : (number | undefined | string)[][]) : Way{
     return minValue;
 }
 
-function findWay(dataMatrix : (number | undefined | string )[][], minWay : Way) : Way[] {
-   const elementaryWay : Way[] = [];
-   const visited = new Set<String>();
+function findWay(
+  dataMatrix: (number | undefined | string)[][],
+  minWay: Way
+): Way[] {
+  const n = dataMatrix.length;
+  const source = 0;
+  const sink = n - 1;
+  const I0 = minWay.row;
+  const J0 = minWay.col;
 
-   let actualWay : Way = {...minWay};
-   elementaryWay.push(actualWay);
-   visited.add(`${actualWay.row}-${actualWay.col}`);
-
-   while(true){
-    let found = false;
-    for (let i = 0; i < dataMatrix.length; i++){
-        const val = dataMatrix[i][actualWay.row];
-        if(typeof val === 'number' && !visited.has(`${i}-${actualWay.row}`)){
-            const newWay : Way = {
-                value : val,
-                row : i,
-                col : actualWay.row
-            };
-            elementaryWay.unshift(newWay);
-            visited.add(`${i}-${actualWay.row}`);
-            actualWay = newWay;
-            found = true;
-            break;
+  function bfs(start: number, goal: number): number[] | null {
+    const queue: number[] = [start];
+    const parent = Array<number>(n).fill(-1);
+    const visited = Array<boolean>(n).fill(false);
+    visited[start] = true;
+    while (queue.length) {
+      const u = queue.shift() as number;
+      if (u === goal) break;
+      for (let v = 0; v < n; v++) {
+        const val = dataMatrix[u][v];
+        if (!visited[v] && typeof val === "number" && val > 0) {
+          visited[v] = true;
+          parent[v] = u;
+          queue.push(v);
         }
+      }
     }
-    if(!found) break;
-   }
+    if (!visited[goal]) return null;
+    return parent;
+  }
 
-   actualWay = minWay;
-   while(true){
-    let found = false;
-    for (let j = 0; j < dataMatrix.length; j++){
-        const val = dataMatrix[actualWay.col][j];
-        if(typeof val === 'number' && !visited.has(`${actualWay.col}-${j}`)){
-            
-            const newWay : Way = {
-                value : val,
-                row : actualWay.col,
-                col : j
-            };
-            elementaryWay.push(newWay);
-            visited.add(`${actualWay.col}-${j}`);
-            actualWay = newWay;
-            found = true;
-            break;
+  function buildPathFromParent(parent: number[], start: number, goal: number): number[] {
+    const path: number[] = [];
+    let cur = goal;
+    while (cur !== -1 && cur !== start) {
+      path.unshift(cur);
+      cur = parent[cur];
+    }
+    if (cur === start) path.unshift(start);
+    return path;
+  }
+
+  const parentA = bfs(source, I0);
+  if (!parentA) {
+    if (typeof dataMatrix[I0][J0] === "number") dataMatrix[I0][J0] = "Bloqué";
+    return [];
+  }
+  const pathA = buildPathFromParent(parentA, source, I0);
+
+  const parentB = bfs(J0, sink);
+  if (!parentB) {
+    if (typeof dataMatrix[I0][J0] === "number") dataMatrix[I0][J0] = "Bloqué";
+    return [];
+  }
+  const pathB = buildPathFromParent(parentB, J0, sink);
+
+  const fullNodes: number[] = [...pathA, J0, ...pathB.slice(1)];
+
+  const seen = new Map<number, number>(); 
+  for (let i = 0; i < fullNodes.length; i++) {
+    const node = fullNodes[i];
+    if (seen.has(node)) {
+      const firstIdx = seen.get(node)!;
+      const secondIdx = i;
+      const cycleNodes = fullNodes.slice(firstIdx, secondIdx + 1);
+      const cycleEdges: { from: number; to: number; cap: number }[] = [];
+      for (let k = 0; k < cycleNodes.length - 1; k++) {
+        const u = cycleNodes[k];
+        const v = cycleNodes[k + 1];
+        const cap = dataMatrix[u][v];
+        if (typeof cap === "number") {
+          cycleEdges.push({ from: u, to: v, cap });
+        } else {
         }
+      }
+      if (cycleEdges.length > 0) {
+        let minEdge = cycleEdges[0];
+        for (const e of cycleEdges) {
+          if (e.cap < minEdge.cap) minEdge = e;
+        }
+        dataMatrix[minEdge.from][minEdge.to] = "Bloqué";
+      }
+      return [];
     }
-    if(!found) break;
-   }
+    seen.set(node, i);
+  }
 
-   if(elementaryWay[0].row != 0 || elementaryWay[elementaryWay.length - 1].col != dataMatrix.length - 1){
-    
-    
-    console.log("tsy tonga am source koa : ", elementaryWay);
-    
-    for(const oneWay of elementaryWay){
-        dataMatrix[oneWay.row][oneWay.col] = 'Bloqué'
-    }
-    const emptyWay : Way[] = [];
-    return emptyWay;
-   } 
+  const elementaryWay: Way[] = [];
+  for (let k = 0; k < fullNodes.length - 1; k++) {
+    const u = fullNodes[k];
+    const v = fullNodes[k + 1];
+    const val = dataMatrix[u][v];
+    elementaryWay.push({ row: u, col: v, value: typeof val === "number" ? val : undefined });
+  }
 
-   return elementaryWay;
-    
+  return elementaryWay;
 }
+
 
 function plusValue(initialMatrix : number[][], elementaryWay : Way[], minWay : Way) : number[][]{
     const initialMatrixCopy : number [][] = Array.from({length: initialMatrix.length}, () => Array.from({length: initialMatrix.length}));
@@ -234,8 +267,6 @@ export function fullFlow (edges : Edge[], nbNodes : number) : {dataMatrix : (num
         }
     }
 
-    
-    
 
     console.log("rows : ", rows);
     console.log("inverseRows : ", inverseRows);
